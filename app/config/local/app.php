@@ -44,8 +44,8 @@ return array(
         'Illuminate\Workbench\WorkbenchServiceProvider',
         'Way\Generators\GeneratorsServiceProvider',
         'mnshankar\RoleBasedAuthority\RoleBasedAuthorityServiceProvider',
-        'Barryvdh\MigrationGenerator\MigrationGeneratorServiceProvider',
-        'Nwidart\DbExporter\DbExportHandlerServiceProvider'
+
+
     ),
     'aliases' => array(
 

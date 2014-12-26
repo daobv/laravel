@@ -3,44 +3,38 @@
 use Mockery as m;
 use Way\Tests\Factory;
 
-class UsersTest extends TestCase {
+class CampaignsTest extends TestCase {
+
 	public function __construct()
 	{
-		//$this->mock = $this->mock('Eloquent', 'Users');
+		$this->mock = m::mock('Eloquent', 'Campaign');
+		$this->collection = m::mock('Illuminate\Database\Eloquent\Collection')->shouldDeferMissing();
 	}
-    public function mock($class)
-    {
-        $mock = Mockery::mock($class);
 
-        $this->app->instance($class, $mock);
-
-        return $mock;
-    }
 	public function setUp()
 	{
 		parent::setUp();
-        $this->mock = $this->mock('Cribbb\Storage\User\UserRepository');
-		$this->attributes = Factory::user(['id' => 1]);
-		$this->app->instance('User', $this->mock);
-        $this->collection = $this->mock('Illuminate\Database\Eloquent\Collection')->shouldDeferMissing();
+
+		$this->attributes = Factory::campaign(['id' => 1]);
+		$this->app->instance('Campaign', $this->mock);
 	}
 
 	public function tearDown()
 	{
-        Mockery::close();
+		m::close();
 	}
 
 	public function testIndex()
 	{
 		$this->mock->shouldReceive('all')->once()->andReturn($this->collection);
-		$this->call('GET', 'users');
+		$this->call('GET', 'campaigns');
 
-		$this->assertViewHas('users');
+		$this->assertViewHas('campaigns');
 	}
 
 	public function testCreate()
 	{
-		$this->call('GET', 'users/create');
+		$this->call('GET', 'campaigns/create');
 
 		$this->assertResponseOk();
 	}
@@ -49,18 +43,18 @@ class UsersTest extends TestCase {
 	{
 		$this->mock->shouldReceive('create')->once();
 		$this->validate(true);
-		$this->call('POST', 'users');
+		$this->call('POST', 'campaigns');
 
-		$this->assertRedirectedToRoute('users.index');
+		$this->assertRedirectedToRoute('campaigns.index');
 	}
 
 	public function testStoreFails()
 	{
 		$this->mock->shouldReceive('create')->once();
 		$this->validate(false);
-		$this->call('POST', 'users');
+		$this->call('POST', 'campaigns');
 
-		$this->assertRedirectedToRoute('users.create');
+		$this->assertRedirectedToRoute('campaigns.create');
 		$this->assertSessionHasErrors();
 		$this->assertSessionHas('message');
 	}
@@ -72,9 +66,9 @@ class UsersTest extends TestCase {
 				   ->once()
 				   ->andReturn($this->attributes);
 
-		$this->call('GET', 'users/1');
+		$this->call('GET', 'campaigns/1');
 
-		$this->assertViewHas('user');
+		$this->assertViewHas('campaign');
 	}
 
 	public function testEdit()
@@ -85,9 +79,9 @@ class UsersTest extends TestCase {
 				   ->once()
 				   ->andReturn($this->collection);
 
-		$this->call('GET', 'users/1/edit');
+		$this->call('GET', 'campaigns/1/edit');
 
-		$this->assertViewHas('user');
+		$this->assertViewHas('campaign');
 	}
 
 	public function testUpdate()
@@ -97,18 +91,18 @@ class UsersTest extends TestCase {
 				   ->andReturn(m::mock(['update' => true]));
 
 		$this->validate(true);
-		$this->call('PATCH', 'users/1');
+		$this->call('PATCH', 'campaigns/1');
 
-		$this->assertRedirectedTo('users/1');
+		$this->assertRedirectedTo('campaigns/1');
 	}
 
 	public function testUpdateFails()
 	{
 		$this->mock->shouldReceive('find')->with(1)->andReturn(m::mock(['update' => true]));
 		$this->validate(false);
-		$this->call('PATCH', 'users/1');
+		$this->call('PATCH', 'campaigns/1');
 
-		$this->assertRedirectedTo('users/1/edit');
+		$this->assertRedirectedTo('campaigns/1/edit');
 		$this->assertSessionHasErrors();
 		$this->assertSessionHas('message');
 	}
@@ -117,7 +111,7 @@ class UsersTest extends TestCase {
 	{
 		$this->mock->shouldReceive('find')->with(1)->andReturn(m::mock(['delete' => true]));
 
-		$this->call('DELETE', 'users/1');
+		$this->call('DELETE', 'campaigns/1');
 	}
 
 	protected function validate($bool)

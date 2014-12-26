@@ -7,7 +7,8 @@ class UserRolesTableSeeder extends Seeder {
         $userRoles = array(
             array('role_name' => 'Super Administrator','role_key'=>'SA'),
             array('role_name' => 'Brand Owner','role_key'=>'BO'),
-            array('role_name' => 'Order Manager','role_key'=>'OM')
+            array('role_name' => 'Order Manager','role_key'=>'OM'),
+            array('role_name' => 'Voter/Buyer','role_key'=>'User'),
         );
         DB::table('user_roles')->insert($userRoles);
     }

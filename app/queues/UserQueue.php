@@ -10,14 +10,16 @@ class UserQueue
     }
     public function save($job,$data){
 
-        $redis = new Redis();
-        $redis->set('email1', json_encode($data));
-        $name = $redis->get('email');
-        echo $name;
-        $job->delete();
     }
+    public function register($job,$data){
+        $user = $data['user'];
+        $email = $user['email'];
 
-    public function sendEmail(){
-
+        echo $email."\n";
+        /*Mail::send('emails.welcome', array('key' => 'value'), function($message)
+        {
+            $message->to('foo@example.com', 'John Smith')->subject('Welcome!');
+        });*/
+        $job->delete();
     }
 }

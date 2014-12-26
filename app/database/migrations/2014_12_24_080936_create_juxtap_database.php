@@ -16,14 +16,16 @@ class CreateJuxtapDatabase extends Migration {
 	    /**
 	     * Table: billing_address
 	     */
-	    Schema::create('billing_address', function($table) {
-                $table->increments('billing_address_id');
-                $table->integer('user_id')->nullable();
-                $table->string('billing_address_1', 50)->nullable();
-                $table->string('billing_address_2', 50)->nullable();
-                $table->string('billing_address_city', 50)->nullable();
-                $table->integer('billing_address_zip')->nullable();
-            });
+             Schema::create('billing_address', function($table) {
+                 $table->increments('id');
+                 $table->integer('user_id')->nullable();
+                 $table->integer('order_id');
+                 $table->string('address_1', 50)->nullable();
+                 $table->string('address_2', 50)->nullable();
+                 $table->string('city', 50)->nullable();
+                 $table->integer('zipcode')->nullable();
+                 $table->index('order_id');
+             });
 
 
 	    /**
@@ -59,7 +61,14 @@ class CreateJuxtapDatabase extends Migration {
                 $table->integer('sale_qty');
                 $table->double('sale_value');
             });
-
+             /**
+              * Table: product_campaign
+              */
+             Schema::create('product_campaign', function($table) {
+                 $table->integer('product_id')->nullable();
+                 $table->string('campaign_id', 20);
+                 $table->timestamp('created_at');
+             });
 
 	    /**
 	     * Table: distribution_channels
@@ -73,39 +82,32 @@ class CreateJuxtapDatabase extends Migration {
 	    /**
 	     * Table: order_items
 	     */
-	    Schema::create('order_items', function($table) {
-                $table->increments('order_item_id');
-                $table->integer('order_id')->nullable();
-                $table->string('order_items_sku', 20);
-                $table->integer('order_item_qty')->nullable();
-                $table->float('order_item_price')->nullable();
-                $table->float('order_item_total')->nullable();
-            });
+             Schema::create('order_items', function($table) {
+                 $table->increments('id');
+                 $table->integer('order_id')->nullable();
+                 $table->string('sku', 20);
+                 $table->integer('qty')->nullable();
+                 $table->float('price')->nullable();
+                 $table->float('total')->nullable();
+                 $table->index('order_id');
+             });
 
 
-	    /**
-	     * Table: orders
-	     */
-	    Schema::create('orders', function($table) {
-                $table->increments('order_id');
-                $table->integer('shipping_address_id');
-                $table->integer('billing_address_id');
-                $table->integer('shipping_rule_id');
-                $table->integer('payment_id');
-                $table->integer('campaign_id');
-                $table->string('order_first_name', 50);
-                $table->string('order_last_name', 50);
-                $table->string('order_email', 50);
-                $table->string('order_phone', 10)->nullable();
-                $table->float('order_tax')->nullable();
-                $table->float('order_grand_total')->nullable();
-                $table->boolean('order_status')->nullable();
-                $table->timestamp('order_created_at');
-                $table->index('billing_address_id');
-                $table->index('shipping_rule_id');
-                $table->index('shipping_address_id');
-                $table->index('payment_id');
-            });
+             /**
+              * Table: orders
+              */
+             Schema::create('orders', function($table) {
+                 $table->increments('id');
+                 $table->integer('campaign_id');
+                 $table->string('first_name', 50);
+                 $table->string('last_name', 50);
+                 $table->string('email', 50);
+                 $table->string('phone', 10)->nullable();
+                 $table->float('tax')->nullable();
+                 $table->float('grand_total')->nullable();
+                 $table->boolean('status')->nullable();
+                 $table->timestamp('created_at');
+             });
 
 
 	    /**
@@ -133,97 +135,101 @@ class CreateJuxtapDatabase extends Migration {
 	    Schema::create('password_reminders', function($table) {
                 $table->string('email', 64);
                 $table->string('token', 64);
+                $table->boolean('used')->default("0");
                 $table->timestamp('created_at');
                 $table->index('email');
                 $table->index('token');
             });
 
 
-	    /**
-	     * Table: payments
-	     */
-	    Schema::create('payments', function($table) {
-                $table->increments('payment_id');
-                $table->string('payment_method', 255);
-                $table->integer('user_id')->nullable();
-                $table->integer('campaign_id')->nullable();
-            });
+             /**
+              * Table: payments
+              */
+             Schema::create('payments', function($table) {
+                 $table->increments('id');
+                 $table->integer('order_id');
+                 $table->string('payment_method', 255);
+                 $table->integer('user_id')->nullable();
+                 $table->integer('campaign_id')->nullable();
+                 $table->index('order_id');
+             });
 
 
-	    /**
-	     * Table: product_color
-	     */
-	    Schema::create('product_color', function($table) {
-                $table->increments('product_color_id');
-                $table->string('product_color_name', 45)->nullable();
-            });
+             /**
+              * Table: product_color
+              */
+             Schema::create('product_color', function($table) {
+                 $table->increments('id');
+                 $table->string('color', 45)->nullable();
+             });
 
 
-	    /**
-	     * Table: product_images
-	     */
-	    Schema::create('product_images', function($table) {
-                $table->integer('product_id')->nullable();
-                $table->string('product_image_path', 20)->nullable();
-                $table->string('product_image_thumbnail_path', 20)->nullable();
-                $table->index('product_id');
-            });
+             /**
+              * Table: product_images
+              */
+             Schema::create('product_images', function($table) {
+                 $table->integer('product_id')->nullable();
+                 $table->string('product_image_path', 20)->nullable();
+                 $table->string('product_image_thumbnail_path', 20)->nullable();
+                 $table->index('product_id');
+             });
 
 
-	    /**
-	     * Table: product_options
-	     */
-	    Schema::create('product_options', function($table) {
-                $table->increments('product_options_id');
-                $table->integer('product_id');
-                $table->string('product_options_sku', 20);
-                $table->text('product_options_description')->nullable();
-                $table->string('product_options_color', 8)->nullable();
-                $table->string('product_options_size', 10)->nullable();
-                $table->float('product_options_price')->nullable();
-            });
+             /**
+              * Table: product_options
+              */
+             Schema::create('product_options', function($table) {
+                 $table->increments('id');
+                 $table->integer('product_id');
+                 $table->string('product_options_sku', 20);
+                 $table->text('product_options_description')->nullable();
+                 $table->string('product_options_color', 8)->nullable();
+                 $table->string('product_options_size', 10)->nullable();
+                 $table->float('product_options_price')->nullable();
+                 $table->timestamp('created_at');
+                 $table->timestamp('updated_at');
+             });
 
 
-	    /**
-	     * Table: product_options_images
-	     */
-	    Schema::create('product_options_images', function($table) {
-                $table->increments('product_option_image_id');
-                $table->integer('product_options_id')->nullable();
-                $table->text('product_option_image_path')->nullable();
-                $table->text('product_option_image_thumbnail_path')->nullable();
-                $table->index('product_options_id');
-            });
+             /**
+              * Table: product_options_images
+              */
+             Schema::create('product_options_images', function($table) {
+                 $table->integer('product_options_id')->nullable();
+                 $table->text('product_option_image_path')->nullable();
+                 $table->text('product_option_image_thumbnail_path')->nullable();
+                 $table->index('product_options_id');
+             });
 
 
-	    /**
-	     * Table: product_size
-	     */
-	    Schema::create('product_size', function($table) {
-                $table->increments('product_size_id');
-                $table->string('product_size_name', 45)->nullable();
-            });
+             /**
+              * Table: product_size
+              */
+             Schema::create('product_size', function($table) {
+                 $table->increments('id');
+                 $table->string('size', 45)->nullable();
+             });
 
 
-	    /**
-	     * Table: products
-	     */
-	    Schema::create('products', function($table) {
-                $table->increments('product_id');
-                $table->integer('campaign_id')->nullable();
-                $table->integer('organization_id');
-                $table->integer('user_id');
-                $table->string('product_name', 50);
-                $table->string('product_sku', 20);
-                $table->text('product_description')->nullable();
-                $table->string('product_brand', 30)->nullable();
-                $table->string('product_upc', 50)->nullable();
-                $table->boolean('product_status');
-                $table->timestamp('product_created_at');
-                $table->timestamp('product_updated_at');
-                $table->index('organization_id');
-                $table->index('user_id');
-            });
+             /**
+              * Table: products
+              */
+             Schema::create('products', function($table) {
+                 $table->increments('id');
+                 $table->integer('campaign_id')->nullable();
+                 $table->integer('organization_id');
+                 $table->integer('user_id');
+                 $table->string('product_name', 50);
+                 $table->string('product_sku', 20);
+                 $table->text('product_description')->nullable();
+                 $table->string('product_brand', 30)->nullable();
+                 $table->string('product_upc', 50)->nullable();
+                 $table->boolean('product_status');
+                 $table->timestamp('created_at');
+                 $table->timestamp('updated_at');
+                 $table->index('organization_id');
+                 $table->index('user_id');
+             });
 
 
 	    /**
@@ -261,47 +267,51 @@ class CreateJuxtapDatabase extends Migration {
             });
 
 
-	    /**
-	     * Table: shipping_address
-	     */
-	    Schema::create('shipping_address', function($table) {
-                $table->increments('shipping_address_id');
-                $table->string('shipping_address_1', 255)->nullable();
-                $table->string('shipping_address_2', 255)->nullable();
-                $table->string('shipping_address_city', 255)->nullable();
-                $table->integer('shipping_address_zip')->nullable();
-            });
+             /**
+              * Table: shipping_address
+              */
+             Schema::create('shipping_address', function($table) {
+                 $table->increments('id');
+                 $table->integer('order_id');
+                 $table->integer('user_id');
+                 $table->string('address_1', 255)->nullable();
+                 $table->string('address_2', 255)->nullable();
+                 $table->string('city', 255)->nullable();
+                 $table->integer('zipcode')->nullable();
+                 $table->index('order_id');
+             });
+
+             /**
+              * Table: shipping_destinations
+              */
+             Schema::create('shipping_destinations', function($table) {
+                 $table->increments('shipping_destination_id');
+                 $table->string('shipping_destination_name', 255)->nullable();
+             });
 
 
-	    /**
-	     * Table: shipping_destinations
-	     */
-	    Schema::create('shipping_destinations', function($table) {
-                $table->increments('shipping_destination_id');
-                $table->string('shipping_destination_name', 255)->nullable();
-            });
+             /**
+              * Table: shipping_methods
+              */
+             Schema::create('shipping_methods', function($table) {
+                 $table->increments('shipping_method_id');
+                 $table->string('shipping_method_name', 255)->nullable();
+             });
 
 
-	    /**
-	     * Table: shipping_methods
-	     */
-	    Schema::create('shipping_methods', function($table) {
-                $table->increments('shipping_method_id');
-                $table->string('shipping_method_name', 255)->nullable();
-            });
-
-
-	    /**
-	     * Table: shipping_rules
-	     */
-	    Schema::create('shipping_rules', function($table) {
-                $table->increments('id');
-                $table->integer('country_id');
-                $table->float('standard');
-                $table->float('expedited');
-                $table->text('standard_description')->nullable();
-                $table->text('expedited_description')->nullable();
-            });
+             /**
+              * Table: shipping_rules
+              */
+             Schema::create('shipping_rules', function($table) {
+                 $table->increments('id');
+                 $table->integer('order_id');
+                 $table->integer('country_id');
+                 $table->float('standard');
+                 $table->float('expedited');
+                 $table->text('standard_description')->nullable();
+                 $table->text('expedited_description')->nullable();
+                 $table->index('order_id');
+             });
 
 
 	    /**
@@ -317,21 +327,21 @@ class CreateJuxtapDatabase extends Migration {
             });
 
 
-	    /**
-	     * Table: user_addresses
-	     */
-	    Schema::create('user_addresses', function($table) {
-                $table->increments('user_id');
-                $table->string('company', 64)->nullable();
-                $table->string('street_addess_1', 64);
-                $table->string('street_addess_2', 64)->nullable();
-                $table->string('city', 32);
-                $table->string('state', 32);
-                $table->string('zip', 32);
-                $table->integer('country');
-                $table->string('phone_number', 40);
-                $table->index('user_id');
-            });
+             /**
+              * Table: user_addresses
+              */
+             Schema::create('user_addresses', function($table) {
+                 $table->increments('user_id');
+                 $table->string('company', 64)->nullable();
+                 $table->string('street_addess_1', 64);
+                 $table->string('street_addess_2', 64)->nullable();
+                 $table->string('city', 32);
+                 $table->string('state', 32);
+                 $table->string('zip', 32);
+                 $table->integer('country');
+                 $table->string('phone_number', 40);
+                 $table->index('user_id');
+             });
 
 
 	    /**
@@ -352,8 +362,8 @@ class CreateJuxtapDatabase extends Migration {
 	     */
 	    Schema::create('users', function($table) {
                 $table->increments('id');
-                $table->string('email', 64);
-                $table->string('password', 64);
+                $table->string('email', 128);
+                $table->string('password', 128);
                 $table->string('last_name', 64)->nullable();
                 $table->string('first_name', 255)->nullable();
                 $table->string('power_message', 255)->nullable();
@@ -361,7 +371,8 @@ class CreateJuxtapDatabase extends Migration {
                 $table->text('privacy')->nullable();
                 $table->integer('role_id');
                 $table->integer('organization_id');
-                $table->string('remember_token', 64)->nullable();
+                $table->boolean('status')->default(0);
+                $table->string('remember_token', 128)->nullable();
                 $table->timestamp('created_at');
                 $table->timestamp('updated_at');
                 $table->index('email');

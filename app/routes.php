@@ -15,14 +15,12 @@ Route::get('/', function()
 {
 	return View::make('hello');
 });
-Route::get('users', 'HomeController@showWelcome');
-
-
-Route::resource('tweets', 'TweetsController');
-
-
-Route::resource('tweets', 'TweetsController');
-
-Route::resource('tweets', 'TweetsController');
+//Route::get('users', 'HomeController@showWelcome');
+Route::any('users/login', array('as' => 'userLogin', 'uses' => 'UsersController@login'));
+Route::post('users/register', array('as' => 'userSave', 'uses' => 'UsersController@store'));
 
 Route::resource('users', 'UsersController');
+
+Route::resource('tweets', 'TweetsController');
+
+Route::resource('campaigns', 'CampaignsController');

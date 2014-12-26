@@ -14,5 +14,8 @@ class ExampleTest extends TestCase {
 
 		//$this->assertTrue($this->client->getResponse()->isOk());
 	}
+    public function testRegister(){
+        $this->call('POST', 'users/register',array('email'=>'dao.hunter@gmail.com','password'=>'12345','first_name'=>'Dao','last_name'=>'Bui'));
 
+    }
 }

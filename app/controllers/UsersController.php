@@ -1,5 +1,6 @@
 <?php
 
+use \Illuminate\Support\Facades\Hash as Hash;
 class UsersController extends BaseController {
 
 	/**
@@ -9,11 +10,27 @@ class UsersController extends BaseController {
 	 */
 	protected $user;
 
-	public function __construct(User $user)
+	public function __construct(Users $user)
 	{
 		$this->user = $user;
 	}
+    public function login()
+    {
+        $user = new Users;
+        $user->email =  Input::get('email');
+        $user->password = Hash::make(Input::get('password'));
+        //dd(Input::all());
+        if (Auth::attempt(array('email' => Input::get('email'), 'password' =>Input::get('password')))){
+            echo "Login Success";
+            //return Redirect::intended('dashboard')->with('message','Welcome back, '.$this->user->fisrt_name." ".$this->user->last_name);
+        }else{
+            echo "Login Failed";
+        }
 
+
+        //$password = Hash::make('secret');
+      //  return View::make('users.login');
+    }
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -44,19 +61,34 @@ class UsersController extends BaseController {
 	public function store()
 	{
 		$input = Input::all();
-		$validation = Validator::make($input, User::$rules);
-
+		$validation = Validator::make($input, Users::$rules);
 		if ($validation->passes())
 		{
-			$this->user->create($input);
+            $user = new Users;
+            $user->first_name = Input::get('first_name');
+            $user->last_name = Input::get('last_name');
+            $user->email = Input::get('email');
+            $user->password = Hash::make(Input::get('password'));
+            $user->remember_token = str_random(60);
 
-			return Redirect::route('users.index');
-		}
+            $redis = new Redis();
 
-		return Redirect::route('users.create')
-			->withInput()
-			->withErrors($validation)
-			->with('message', 'There were validation errors.');
+            $redis->set('email', json_encode($data));
+            $name = $redis->get('email');
+            echo $name;
+            $job->delete();
+            if($user->save()){
+                Event::fire('user.register', array($user));
+            }
+            echo "Register successfully!";
+            return Redirect::intended('dashboard')
+                ->with('message',"Register successfully!");
+
+		}else{
+            echo "Register failed!";
+            return Redirect::route('users/login')
+                ->with('message',"Login Failed. Please try again.");
+        }
 	}
 
 	/**
@@ -127,5 +159,4 @@ class UsersController extends BaseController {
 
 		return Redirect::route('users.index');
 	}
-
 }
